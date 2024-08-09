@@ -1,0 +1,89 @@
+﻿@page "/crear-categoria"
+@using Modelos.DTO
+@using Repositorio.IRepositorio
+@inject ICategoriaRepositorio CategoriaRepositorio
+@inject NavigationManager navigationManager
+@inject IJSRuntime JsRuntime
+
+@attribute [Authorize(Roles = "Administrador")]
+
+<h1 class="text-center">Crear Categoría</h1>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-7">
+                <h2 class="text-dark">Nueva Categoría</h2>
+            </div>           
+        </div>
+    </div>
+    <div class="card-body">
+        <EditForm Model="categoriaDTO" OnValidSubmit="@( () => ManejadorOnCrearCategoria())">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+            <div class="container">
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Nombre: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="categoriaDTO.NombreCategoria" class="form-control" placeholder="Ingresa el nombre"></InputText>
+                            <ValidationMessage For="() => categoriaDTO.NombreCategoria"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Descripción: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="categoriaDTO.Descripcion" class="form-control" placeholder="Ingresa la descripción"></InputText>
+                            <ValidationMessage For="() => categoriaDTO.Descripcion"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Guardar Categoría</button>
+                        </div>
+                        <div class="col-6">
+                            <NavLink href="categorias" class="btn btn-secondary"><i class="bi bi-arrow-left-circle-fill"></i>&nbsp; Volver atrás</NavLink>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    private CategoriaDTO categoriaDTO { get; set; } = new CategoriaDTO();
+
+    private async Task ManejadorOnCrearCategoria()
+    {
+        var nombreCategoria = await CategoriaRepositorio.NombreCategoriaExiste(categoriaDTO.NombreCategoria);
+        if (nombreCategoria != null)
+        {
+            //Categoría duplicada error
+            await JsRuntime.ToastrError("El nombre de la categoría ya existe");
+            return;
+        }
+
+        //Si entra aquí esntonces no existe y hay que crearla
+        var crearCategoria = await CategoriaRepositorio.CrearCategoria(categoriaDTO);
+        await JsRuntime.ToastrSuccess("Categoría creada correctamente!");
+        navigationManager.NavigateTo("categorias");
+    }
+
+}

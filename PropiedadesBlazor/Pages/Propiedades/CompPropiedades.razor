@@ -1,0 +1,129 @@
+﻿@page "/propiedades"
+@using Modelos.DTO
+@using PropiedadesBlazor.Servicios;
+@using Repositorio.IRepositorio
+@inject IPropiedadRepositorio PropiedadRepositorio
+@inject IJSRuntime JsRuntime
+@inject NavigationManager navigationManager
+@inject ISubidaArchivo SubidaArchivo
+
+@attribute [Authorize(Roles = "Administrador,Editador")]
+
+<h1 class="text-center">Ultimas Propiedades</h1>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-7">
+                <h4 class="card-title text-dark">Lista de Propiedades</h4>
+            </div>
+            <div class="col-3 offset-2">
+                <NavLink href="crear-propiedad" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i>&nbsp; Nueva Propiedad</NavLink>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Área</th>
+                    <th>Habitaciones</th>
+                    <th>Baños</th>
+                    <th>Parqueadero</th>
+                    <th>Precio</th>
+                    <th>Activo</th>
+                    <th>Categoría</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (propiedadDTO.Count() > 0)
+                {
+                    foreach (var propiedad in propiedadDTO)
+                    {
+                        <tr>
+                            <td>@propiedad.Id</td>
+                            <td>@propiedad.Nombre</td>
+                            <td>@propiedad.Descripcion</td>
+                            <td>@propiedad.Area</td>
+                            <td>@propiedad.Habitaciones</td>
+                            <td>@propiedad.Banios</td>
+                            <td>@propiedad.Parqueadero</td>
+                            <td>@propiedad.Precio</td>
+                            <td>@propiedad.Activo</td>
+                            <td>@propiedad.Categoria.NombreCategoria</td>
+                            <td>
+                                <NavLink href="@($"editar-propiedad/{propiedad.Id}")" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Editar</NavLink>
+                                <button class="btn btn-danger" @onclick="()=>ManejadorOnBorrar(propiedad.Id)"><i class="bi bi-trash-fill"></i>&nbsp; Borrar</button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5">No hay registros</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<ConfirmacionBorrado ProcesandoComponentePadre="estaProcesando" CambioConfirmacion="Click_Confirmar_Borrado"></ConfirmacionBorrado>
+
+@code {
+    private IEnumerable<PropiedadDTO> propiedadDTO { get; set; } = new List<PropiedadDTO>();
+    private bool estaProcesando { get; set; } = false;
+    private int? BorrarIdPropiedad { get; set; } = null;
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationState;
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            navigationManager.NavigateTo("/Identity/Account/Login");
+        }
+
+        propiedadDTO = await PropiedadRepositorio.GetAll2Propiedades();
+    }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    await JsRuntime.InvokeVoidAsync("MostrarModalConfirmacionBorrado");
+    //}
+
+    private async Task ManejadorOnBorrar(int propiedadId)
+    {
+        BorrarIdPropiedad = propiedadId;
+        await JsRuntime.InvokeVoidAsync("MostrarModalConfirmacionBorrado");
+    }
+
+    public async Task Click_Confirmar_Borrado(bool confirmado)
+    {
+        estaProcesando = true;
+        if (confirmado && BorrarIdPropiedad != null)
+        {
+            PropiedadDTO propiedad = await PropiedadRepositorio.GetPropiedad(BorrarIdPropiedad.Value);
+            foreach (var imagen in propiedad.ImagenPropiedad)
+            {
+                var nombreImagen = imagen.UrlImagenPropiedad.Replace($"{navigationManager.BaseUri}ImagenesPropiedades/", "");
+                SubidaArchivo.BorrarArchivo(nombreImagen);
+            }
+
+
+            await PropiedadRepositorio.BorrarPropiedad(BorrarIdPropiedad.Value);
+            await JsRuntime.ToastrSuccess("Propiedad borrada correctamente");
+              propiedadDTO = await PropiedadRepositorio.GetAll2Propiedades();
+        }
+
+        await JsRuntime.InvokeVoidAsync("OcultarModalConfirmacionBorrado");
+        estaProcesando = false;
+    }
+}

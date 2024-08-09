@@ -1,0 +1,329 @@
+﻿@page "/crear-propiedad"
+@using Modelos.DTO
+@using PropiedadesBlazor.Servicios;
+@using Repositorio.IRepositorio
+@inject IPropiedadRepositorio PropiedadRepositorio
+@inject ICategoriaRepositorio CategoriaRepositorio
+@inject IIMagenPropiedadRepositorio IMagenPropiedadRepositorio
+@inject ISubidaArchivo SubidaArchivo
+@inject NavigationManager navigationManager
+@inject IJSRuntime JsRuntime
+
+@attribute [Authorize(Roles = "Administrador,Publicador")]
+
+<h1 class="text-center">Crear Propiedad</h1>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-7">
+                <h2 class="text-dark">Nueva Propiedad</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <EditForm Model="propiedadDTO" OnValidSubmit="@( () => ManejadorOnCrearPropiedad())">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+            <div class="container">
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Nombre: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="propiedadDTO.Nombre" class="form-control" placeholder="Ingresa el nombre"></InputText>
+                            <ValidationMessage For="() => propiedadDTO.Nombre"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Descripción: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="propiedadDTO.Descripcion" class="form-control" placeholder="Ingresa la descripción"></InputText>
+                            <ValidationMessage For="() => propiedadDTO.Descripcion"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Área: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="propiedadDTO.Area" class="form-control" placeholder="Ingresa el área"></InputNumber>
+                            <ValidationMessage For="() => propiedadDTO.Area"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Habitaciones: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="propiedadDTO.Habitaciones" class="form-control" placeholder="Ingresa las habitaciones"></InputNumber>
+                            <ValidationMessage For="() => propiedadDTO.Habitaciones"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Baños: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="propiedadDTO.Banios" class="form-control" placeholder="Ingresa los baños"></InputNumber>
+                            <ValidationMessage For="() => propiedadDTO.Banios"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Parqueadero: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="propiedadDTO.Parqueadero" class="form-control" placeholder="Ingresa el parquedero"></InputNumber>
+                            <ValidationMessage For="() => propiedadDTO.Parqueadero"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Precio: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="propiedadDTO.Precio" class="form-control" placeholder="Ingresa el precio"></InputNumber>
+                            <ValidationMessage For="() => propiedadDTO.Precio"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Activo: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputCheckbox @bind-Value="propiedadDTO.Activo"></InputCheckbox>
+                            <ValidationMessage For="() => propiedadDTO.Activo"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Categoría: </label>
+                        </div>
+                        <div class="col-6">
+                            <InputSelect @bind-Value="categoriaSeleccionada.Id" class="form-control">
+                              @*  <option value="">--Selecciona una categoría--</option>*@
+                                @foreach (var categoria in DropDownCategoriaDTO)
+                                {
+                                    <option value="@categoria.Id">@categoria.NombreCategoria</option>
+                                }
+                            </InputSelect>
+                           
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group" style="padding-top:30px; padding-bottom: 30px">
+                    <hr />
+                    <h4>Imágenes Propiedad</h4>
+
+                    <InputFile OnChange="ManejadorOnSubidaArchivo" multiple></InputFile>
+
+                    <div class="row">
+                        @if (estaIniciadoProcesoSubidaImagen)
+                        {
+                            <div class="col-md-12">
+                                <span><i class="bi bi-arrow-repeat"></i> Porfavor espere mientras suben las imágenes...</span>
+                            </div>
+                        }
+
+                        @if (propiedadDTO.UrlImagenes != null && propiedadDTO.UrlImagenes.Count > 0)
+                        {
+                            int serial = 1;
+                            foreach (var imagenPropiedad in propiedadDTO.UrlImagenes)
+                            {
+                                <div class="col-md-2 mt-3">
+                                    <div class="imagen-propiedad" style="background: url('@imagenPropiedad') 50% 50%">
+                                        <span class="titulo-imagen-propiedad">@serial</span>
+                                    </div>
+
+                                    <button type="button" @onclick="() => BorrarImagen(imagenPropiedad)" class="btn btn-outline-danger btn-block mt-4">
+                                        Borrar
+                                    </button>
+
+                                </div>
+                                serial++;
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Guardar Propiedad</button>
+                        </div>
+                        <div class="col-6">
+                            <NavLink href="propiedades" class="btn btn-secondary"><i class="bi bi-arrow-left-circle-fill"></i>&nbsp; Volver atrás</NavLink>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+
+@code {
+    private PropiedadDTO propiedadDTO { get; set; } = new PropiedadDTO();
+    private DropDownCategoriaDTO categoriaSeleccionada = new DropDownCategoriaDTO();
+    private bool estaIniciadoProcesoSubidaImagen { get; set; } = false;
+    private ImagenPropiedadDTO imagenDTO { get; set; } = new ImagenPropiedadDTO();
+
+    //Para obtener la lista de categorías en un DropDown o lista <select>
+    private IEnumerable<DropDownCategoriaDTO> DropDownCategoriaDTO { get; set; } = new List<DropDownCategoriaDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        DropDownCategoriaDTO = await CategoriaRepositorio.GetDropDownCategorias();
+    }
+
+
+    private async Task ManejadorOnCrearPropiedad()
+    {
+        var nombrePropiedad = await PropiedadRepositorio.NombrePropiedadExiste(propiedadDTO.Nombre);
+        if (nombrePropiedad != null)
+        {
+            //Existe esa propiedad
+            await JsRuntime.ToastrError("El nombre de la propiedad ya existe");
+            return;
+        }
+
+        //Si entra aquí entonces no existe y se debe crear en base de datos
+        propiedadDTO.CategoriaId = categoriaSeleccionada.Id;
+        var crearPropiedad = await PropiedadRepositorio.CrearPropiedad(propiedadDTO);
+        await AgregarImagenesPropiedad(crearPropiedad);
+        await JsRuntime.ToastrSuccess("Propiedad creada correctamente");
+        navigationManager.NavigateTo("propiedades");
+    }
+
+    private async Task ManejadorOnSubidaArchivo(InputFileChangeEventArgs e)
+    {
+        estaIniciadoProcesoSubidaImagen = true;
+        try
+        {
+            var imagenes = new List<string>();
+            if (e.GetMultipleFiles().Count() > 0)
+            {
+                foreach (var file in e.GetMultipleFiles())
+                {
+                    System.IO.FileInfo fileInfo= new System.IO.FileInfo(file.Name);
+                    if (fileInfo.Extension.ToLower() == ".jpg"
+                        || fileInfo.Extension.ToLower() == ".png"
+                        || fileInfo.Extension.ToLower() == ".jpeg")
+                    {
+                        var uploadedImagenPatch = await SubidaArchivo.SubirArchivo(file);
+                        imagenes.Add(uploadedImagenPatch);
+                    }
+                    else
+                    {
+                        await JsRuntime.ToastrError("Porfavor seleccione unicamente .jpg/.jpeg/.png");
+                        return;
+                    }
+                }
+
+                if (imagenes.Any())
+                {
+                    if (propiedadDTO.UrlImagenes != null && propiedadDTO.UrlImagenes.Any())
+                    {
+                        propiedadDTO.UrlImagenes.AddRange(imagenes);
+                    }
+                    else
+                    {
+                        propiedadDTO.UrlImagenes = new List<string>();
+                        propiedadDTO.UrlImagenes.AddRange(imagenes);
+                    }
+                }
+                else
+                {
+                    await JsRuntime.ToastrError("Fallo en la subida de imágenes");
+                    return;
+                }
+            }
+
+            estaIniciadoProcesoSubidaImagen = false;
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    internal async Task BorrarImagen(string urlImagen)
+    {
+        try
+        {
+            var imageIndex = propiedadDTO.UrlImagenes.FindIndex(x => x == urlImagen);
+            var nombreImagen = urlImagen.Replace($"{navigationManager.BaseUri}ImagenesPropiedades/", "");
+            if (propiedadDTO.Id == 0)
+            {
+                var result = SubidaArchivo.BorrarArchivo(nombreImagen);
+            }
+            propiedadDTO.UrlImagenes.RemoveAt(imageIndex);
+        }
+        catch (Exception ex)
+        {
+            await JsRuntime.ToastrError(ex.Message);
+            return;
+        }
+    }
+
+    private async Task AgregarImagenesPropiedad(PropiedadDTO propDTO)
+    {
+        foreach (var urlImagen in propiedadDTO.UrlImagenes)
+        {
+            if (propiedadDTO.ImagenPropiedad == null || propiedadDTO.ImagenPropiedad.Where(x => x.UrlImagenPropiedad == urlImagen).Count() == 0)
+            {
+                imagenDTO = new ImagenPropiedadDTO()
+                {
+                        PropiedadId = propDTO.Id,
+                        UrlImagenPropiedad = urlImagen
+                };
+                await IMagenPropiedadRepositorio.CrearPropiedadImagen(imagenDTO);
+            }
+        }
+    }
+
+}

@@ -1,0 +1,54 @@
+﻿@page "/detalle-propiedad/{Id:int}"
+@using Modelos.DTO
+@using Repositorio.IRepositorio
+@inject IPropiedadRepositorio PropiedadRepositorio
+
+
+<h1 class="text-center">Detalle Propiedad</h1>
+
+
+        <div class="card mb-4 shadow-sm">
+    <div class="card-header text-center bg-primary text-white">
+        <h2 class="mb-0">@propiedadDTO.Nombre</h2>
+    </div>
+    <div class="card-body">
+        @if (propiedadDTO.UrlImagenes != null && propiedadDTO.UrlImagenes.Any())
+        {
+            <div class="row mb-3">
+                @foreach (var imagen in propiedadDTO.UrlImagenes)
+                {
+                    <div class="col-md-4 mb-2">
+                        <img src="@imagen" class="img-fluid rounded" alt="Imagen de la propiedad">
+                    </div>
+                }
+            </div>
+        }
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Descripción:</strong> @propiedadDTO.Descripcion</li>
+            <li class="list-group-item"><strong>Área:</strong> @propiedadDTO.Area m²</li>
+            <li class="list-group-item"><strong>Baños:</strong> @propiedadDTO.Banios</li>
+           <li class="list-group-item"><strong>Parqueadero:</strong> @(propiedadDTO.Parqueadero == 1 ? "Sí" : "No")</li>
+            <li class="list-group-item"><strong>Precio:</strong> $@propiedadDTO.Precio.ToString("N0")</li>
+            <li class="list-group-item"><strong>Activo:</strong> @(propiedadDTO.Activo ? "Sí" : "No")</li>
+            <li class="list-group-item"><strong>Fecha de Actualización:</strong> @propiedadDTO.FechaActualizacion.ToString("dd/MM/yyyy")</li>
+        </ul>
+    </div>
+    <div class="card-footer text-center">
+        <NavLink href="/Landing" class="btn btn-outline-primary"><i class="bi bi-arrow-left-circle-fill"></i> Volver a lista</NavLink>
+    </div>
+</div>
+
+
+
+@code {
+    private PropiedadDTO propiedadDTO { get; set; } = new PropiedadDTO();
+    [Parameter]
+    public int? Id { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        propiedadDTO = await PropiedadRepositorio.GetPropiedad(Id.Value);
+        propiedadDTO.UrlImagenes = propiedadDTO.ImagenPropiedad.Select(i => i.UrlImagenPropiedad).ToList();
+    }
+}

@@ -1,0 +1,58 @@
+﻿
+@using Modelos.DTO
+@using Repositorio.IRepositorio
+@inject IPropiedadRepositorio PropiedadesRepositorio
+
+<PageTitle>Inicio</PageTitle>
+
+
+
+
+<h1 class="text-center mb-4" style="color:black;">ÚLTIMAS PROPIEDADES</h1>
+
+<div class="row">
+    @foreach (var propiedad in propiedadesDTO)
+    {
+        @if (propiedad.Activo)
+        {
+            <div class="col-md-3 col-sm-6 mt-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header text-center">
+                        <h5 class="mb-0" style="color:black;">@propiedad.Nombre</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center">
+                            @if (propiedad.ImagenPropiedad.Count() > 0)
+                            {
+                                @foreach (var imagen in propiedad.ImagenPropiedad.Take(1))
+                                {
+                                    <img src="@imagen.UrlImagenPropiedad" class="img-fluid rounded" alt="Propiedad" style="max-height: 200px; object-fit: cover;">
+                                }
+                            }
+                            else
+                            {
+                                <img src="imagenes/no-image.jpg" class="img-fluid rounded" alt="No disponible" style="max-height: 200px; object-fit: cover;" />
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-center">
+                        <NavLink class="btn btn-primary" href="@($"detalle-propiedad/{propiedad.Id}")">Más información...</NavLink>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+
+@code{
+    private IEnumerable<PropiedadDTO> propiedadesDTO { get; set; } = new List<PropiedadDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        propiedadesDTO = await PropiedadesRepositorio.GetAllPropiedades4();
+    }
+}
+
+

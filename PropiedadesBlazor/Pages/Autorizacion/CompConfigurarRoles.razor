@@ -1,0 +1,43 @@
+﻿@page "/configurar-roles"
+@using Microsoft.AspNetCore.Identity
+@inject RoleManager<IdentityRole> roleManager
+@inject UserManager<IdentityUser> userManager
+@inject IConfiguration config
+
+@attribute [Authorize(Roles = "Administrador")]
+
+<h3>Configurar Roles</h3>
+<p>Esta página es para configurar los roles</p>
+
+
+@code {
+    protected override async Task OnParametersSetAsync()
+    {
+        await ConfigurarAutorizacion();
+    }
+
+
+    private async Task ConfigurarAutorizacion()
+    {
+        const string publicador = "Publicador";
+        string[] roles = { publicador };
+
+        foreach (var role in roles)
+        {
+            var existeRol = await roleManager.RoleExistsAsync(role);
+
+            if (existeRol == false)
+            {
+                await roleManager.CreateAsync(new IdentityRole(role));
+            }
+        }
+
+        var usuario = await userManager.FindByEmailAsync(
+            config.GetValue<string>("UsuarioPublicador"));
+
+        if (usuario != null)
+        {
+            await userManager.AddToRoleAsync(usuario, publicador);
+        }
+    }
+}

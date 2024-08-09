@@ -1,0 +1,127 @@
+﻿@page "/Landing"
+@using Modelos.DTO
+@using Repositorio.IRepositorio
+@inject IPropiedadRepositorio PropiedadesRepositorio
+@inject ICategoriaRepositorio CategoriasRepositorio
+
+<h3>Ultimas Propiedades</h3>
+
+<div class="container mt-5">
+    <h3 class="text-center mb-4">Propiedades</h3>
+
+    <div class="mb-3">
+        <label for="categoriaSelect" class="form-label">Filtrar por categoría:</label>
+        <select id="categoriaSelect" class="form-select" @onchange="OnCategoriaChange">
+            <option value="">Todas las categorías</option>
+            @foreach (var categoria in categorias)
+            {
+                <option value="@categoria.Id">@categoria.NombreCategoria</option>
+            }
+        </select>
+    </div>
+
+    <div class="d-flex justify-content-between mb-4">
+        <button class="btn btn-primary" @onclick="CargarMenosPropiedades" disabled="@(pageIndex == 0)">Página Anterior</button>
+        <button class="btn btn-primary" @onclick="CargarMasPropiedades" disabled="@(!HasMorePages)">Siguiente Página</button>
+    </div>
+
+    @if (propiedadesDTO != null && propiedadesDTO.Any())
+    {
+        <div class="row">
+            @foreach (var propiedad in propiedadesDTO)
+            {
+                @if (propiedad.Activo)
+                {
+                    <div class="col-md-3 mb-4"> <!-- Cambié a col-md-3 para que se adapte mejor en pantallas más grandes -->
+                        <div class="card shadow-sm border-light">
+                            <div class="card-header bg-light text-center">
+                                <h5 class="text-dark">@propiedad.Nombre</h5>
+                            </div>
+                            <div class="card-body">
+                                @if (propiedad.ImagenPropiedad.Count() > 0)
+                                {
+                                    @foreach (var imagen in propiedad.ImagenPropiedad.Take(1))
+                                    {
+                                        <img src="@imagen.UrlImagenPropiedad" class="img-fluid rounded" alt="Imagen de la propiedad">
+                                    }
+                                }
+                                else
+                                {
+                                    <img src="imagenes/no-image.jpg" class="img-fluid rounded" alt="Sin imagen disponible" />
+                                }
+                            </div>
+                            <div class="card-footer text-center">
+                                <NavLink class="btn btn-outline-primary" href="@($"detalle-propiedad/{propiedad.Id}")">Más información...</NavLink>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-center text-muted">No hay propiedades disponibles.</p>
+    }
+</div>
+
+@code {
+    private IEnumerable<PropiedadDTO> propiedadesDTO = new List<PropiedadDTO>();
+    private IEnumerable<CategoriaDTO> categorias = new List<CategoriaDTO>();
+    private int pageIndex = 0;
+    private int pageSize = 4; // Cambiado a 4 propiedades por página
+    private string categoriaSeleccionadaString;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCategorias();
+        await CargarPropiedades();
+    }
+
+    private async Task CargarCategorias()
+    {
+        categorias = await CategoriasRepositorio.GetAllCategorias();
+    }
+
+    private async Task CargarPropiedades()
+    {
+        try
+        {
+            int categoriaId = int.TryParse(categoriaSeleccionadaString, out var id) ? id : 0;
+            propiedadesDTO = await PropiedadesRepositorio.GetAllPropiedades(categoriaId, pageIndex, pageSize);
+
+            if (propiedadesDTO == null || !propiedadesDTO.Any())
+            {
+                Console.WriteLine("No se encontraron propiedades.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error al cargar propiedades: {ex.Message}");
+        }
+    }
+
+    private async Task OnCategoriaChange(ChangeEventArgs e)
+    {
+        categoriaSeleccionadaString = e.Value.ToString();
+        pageIndex = 0; // Reiniciar a la primera página
+        await CargarPropiedades(); // Cargar propiedades según la categoría seleccionada
+    }
+
+    private bool HasMorePages => propiedadesDTO.Count() == pageSize;
+
+    private async Task CargarMasPropiedades()
+    {
+        pageIndex++;
+        await CargarPropiedades();
+    }
+
+    private async Task CargarMenosPropiedades()
+    {
+        if (pageIndex > 0)
+        {
+            pageIndex--;
+            await CargarPropiedades();
+        }
+    }
+}

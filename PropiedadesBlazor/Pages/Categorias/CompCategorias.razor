@@ -1,0 +1,90 @@
+﻿@page "/categorias"
+@using Modelos.DTO
+@using Repositorio.IRepositorio
+@inject ICategoriaRepositorio CategoriaRepositorio
+@inject IJSRuntime JsRuntime
+
+@attribute [Authorize(Roles = "Publicador, Administrador")]
+
+<h1 class="text-center">Categorias</h1>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-7">
+                <h4 class="card-title text-dark">Lista de Categorías</h4>
+            </div>
+            <div class="col-3 offset-2">
+                <NavLink href="crear-categoria" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i>&nbsp; Nueva Categoría</NavLink>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (categoriaDTO.Count() > 0)
+                {
+                    foreach (var categoria in categoriaDTO)
+                    {
+                        <tr>
+                            <td>@categoria.Id</td>
+                            <td>@categoria.NombreCategoria</td>
+                            <td>@categoria.Descripcion</td>
+                            <td>
+                                <NavLink href="@($"editar-categoria/{categoria.Id}")" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Editar</NavLink>
+                                <button class="btn btn-danger" @onclick="()=>ManejadorOnBorrar(categoria.Id)"><i class="bi bi-trash-fill"></i>&nbsp; Borrar</button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5">No hay registros</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<ConfirmacionBorrado ProcesandoComponentePadre="estaProcesando" CambioConfirmacion="Click_Confirmar_Borrado"></ConfirmacionBorrado>
+
+@code {
+    private IEnumerable<CategoriaDTO> categoriaDTO { get; set; } = new List<CategoriaDTO>();
+    private bool estaProcesando { get; set; } = false;
+    private int? BorrarIdCategoria { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categoriaDTO = await CategoriaRepositorio.GetAllCategorias();
+    }
+
+    private async Task ManejadorOnBorrar(int categoriaId)
+    {
+        BorrarIdCategoria = categoriaId;
+        await JsRuntime.InvokeVoidAsync("MostrarModalConfirmacionBorrado");
+    }
+
+    public async Task Click_Confirmar_Borrado(bool confirmado)
+    {
+        estaProcesando = true;
+        if (confirmado && BorrarIdCategoria != null)
+        {          
+            await CategoriaRepositorio.BorrarCategoria(BorrarIdCategoria.Value);
+            await JsRuntime.ToastrSuccess("Categoría borrada correctamente");
+            categoriaDTO = await CategoriaRepositorio.GetAllCategorias();
+        }
+
+        await JsRuntime.InvokeVoidAsync("OcultarModalConfirmacionBorrado");
+        estaProcesando = false;
+    }
+}

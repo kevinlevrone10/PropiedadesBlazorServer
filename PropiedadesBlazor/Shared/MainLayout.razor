@@ -1,0 +1,19 @@
+﻿@inherits LayoutComponentBase
+
+<PageTitle>PropiedadesBlazor</PageTitle>
+
+<div class="d-flex">
+    <div class="sidebar bg-light border-right" style="width: 250px;">
+        <NavMenu />
+    </div>
+
+    <main class="flex-grow-1">
+        <div class="top-row px-4 auth">
+            <LoginDisplay />
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>

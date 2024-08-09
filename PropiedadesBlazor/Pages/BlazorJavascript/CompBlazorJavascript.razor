@@ -1,0 +1,73 @@
+﻿@page "/blazor-javascript"
+@inject IJSRuntime JsRuntime
+
+
+<h3>Blazor/Javascript</h3>
+
+<div class="row mt-4">
+    <div class="col-4">
+        <button class="btn btn-secondary" @onclick="(() => DemoConfirmacion(MensajeConfirmacion))">Demo Botón Confirmar</button>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-4">
+        <button class="btn btn-success" @onclick="DemoSuccess">Demo Toastr Success</button>
+        <button class="btn btn-danger" @onclick="DemoError">Demo Toastr Error</button>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-4">
+        <button class="btn btn-success" @onclick="DemoSuccessSwal">Demo Swal Success</button>
+        <button class="btn btn-danger" @onclick="DemoErrorSwal">Demo Swal Error</button>
+    </div>
+</div>
+
+
+
+<div class="row">
+    @if (ConfirmarResultado)
+    {
+        <p>Confirmación Hecha!</p>
+    }
+    else
+    {
+        <p>Confirmación Pendiente!</p>
+    }
+</div>
+
+@code {
+    private string MensajeConfirmacion = "Esta seguro de dar click?";
+    private bool ConfirmarResultado { get; set; }
+    private async Task DemoConfirmacion(string mensaje)
+    {
+        ConfirmarResultado = await JsRuntime.InvokeAsync<bool>("confirm", mensaje);
+    }
+
+    //Método para el Toastr
+    private async Task DemoSuccess()
+    {
+        //await JsRuntime.InvokeVoidAsync("ShowToastr", "success", "Tarea completada!");
+        await JsRuntime.ToastrSuccess("Tarea completada!");
+    }
+
+    private async Task DemoError()
+    {
+        //await JsRuntime.InvokeVoidAsync("ShowToastr", "error", "Error completando tarea!");
+        await JsRuntime.ToastrError("Error, Tarea incompletada!");
+    }
+
+    //Método para el Sweet Alerts
+    private async Task DemoSuccessSwal()
+    {
+        await JsRuntime.InvokeVoidAsync("ShowSwal", "success", "Tarea completada!");
+       
+    }
+
+    private async Task DemoErrorSwal()
+    {
+        await JsRuntime.InvokeVoidAsync("ShowSwal", "error", "Error completando tarea!");
+       
+    }
+}

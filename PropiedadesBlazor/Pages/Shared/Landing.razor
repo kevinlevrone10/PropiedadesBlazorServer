@@ -1,0 +1,200 @@
+﻿@page "/"
+@layout Customlayout
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienes Raices</title>
+    <link rel="stylesheet" href="personalizado/build/css/app.css">
+</head>
+<body>
+    
+    <header class="header inicio">
+        <div class="contenedor contenido-header">
+            <div class="barra">
+                <a href="">
+                    <img src="personalizado/build/img/logo.svg" alt="Logotipo de Bienes Raices">
+                </a>
+
+                <div class="mobile-menu">
+                    <img src="personalizado/build/img/barras.svg" alt="icono menu responsive">
+                </div>
+
+              
+            </div> <!--.barra-->
+
+            <h1 class="tocado">Venta de Casas y Departamentos  Exclusivos de Lujo</h1>
+        </div>
+    </header>
+<main class="contenedor seccion">
+    <h1 style="color:black;">Más Sobre Nosotros</h1>
+
+    <div class="iconos-nosotros">
+        <div class="icono">
+            <img src="personalizado/build/img/icono1.svg" alt="Icono seguridad" loading="lazy">
+            <h3 style="color:black;">Seguridad</h3>
+            <p style="color:black;">Nos enorgullece ofrecer propiedades que cumplen con los más altos estándares de seguridad. Nuestro compromiso es garantizar que cada cliente se sienta protegido y en confianza al elegir su hogar.</p>
+        </div>
+        <div class="icono">
+            <img src="personalizado/build/img/icono2.svg" alt="Icono Precio" loading="lazy">
+            <h3 style="color:black;">Precio</h3>
+            <p style="color:black;">Ofrecemos una amplia gama de propiedades a precios competitivos, asegurando que nuestros clientes encuentren opciones que se ajusten a su presupuesto sin comprometer la calidad.</p>
+        </div>
+        <div class="icono">
+            <img src="personalizado/build/img/icono3.svg" alt="Icono Tiempo" loading="lazy">
+            <h3 style="color:black;">A Tiempo</h3>
+            <p style="color:black;">Valoramos el tiempo de nuestros clientes. Por eso, nos esforzamos en proporcionar un servicio ágil y eficiente, asegurando que cada transacción se lleve a cabo de manera oportuna y sin complicaciones.</p>
+        </div>
+    </div>
+</main>
+
+<Index2/>
+   <div class="alinear-derecha">
+            <a href="/Landing" class="boton-verde">Ver Todas</a>
+   </div>
+<br>
+
+
+
+
+@* 
+   
+
+    <section class="seccion contenedor">
+        <h2 style="color:black;">Casas y Depas en Venta</h2>
+
+        <div class="contenedor-anuncios">
+            <div class="anuncio">
+
+
+                <div class="contenido-anuncio">
+
+                       <Index />
+                </div><!--.contenido-anuncio-->
+            </div><!--anuncio-->
+
+        </div> <!--.contenedor-anuncios-->
+
+        <div class="alinear-derecha">
+            <a href="anuncios.html" class="boton-verde">Ver Todas</a>
+        </div>
+    </section> *@
+
+
+
+    <section class="imagen-contacto">
+        <h2>Encuentra la casa de tus sueños</h2>
+        <p>Llena el formulario de contacto y un asesor se pondrá en contacto contigo a la brevedad</p>
+        <a href="/Contacto" class="boton-amarillo">Contactános</a>
+    </section>
+
+    <div class="contenedor seccion seccion-inferior">
+        <section class="blog">
+            <h3 style="color:black;">Nuestro Blog</h3>
+
+            <article class="entrada-blog">
+                <div class="imagen">
+                    <picture>
+                        <source srcset="personalizado/build/img/blog1.webp" type="image/webp">
+                        <source srcset="personalizado/build/img/blog1.jpg" type="image/jpeg">
+                        <img loading="lazy" src="personalizado/build/img/blog1.jpg" alt="Texto Entrada Blog">
+                    </picture>
+                </div>
+
+                <div class="texto-entrada">
+                    <a href="entrada.html">
+                        <h4 style="color:black;">Terraza en el techo de tu casa</h4>
+                        <p style="color:black;" class="informacion-meta">Escrito el: <span>09/08/2024</span> por: <span>Admin</span> </p>
+
+                        <p>
+                            Consejos para construir una terraza en el techo de tu casa con los mejores materiales y ahorrando dinero
+                        </p>
+                    </a>
+                </div>
+            </article>
+
+            <article class="entrada-blog">
+                <div class="imagen">
+                    <picture>
+                        <source srcset="personalizado/build/img/blog2.webp" type="image/webp">
+                        <source srcset="personalizado/build/img/blog2.jpg" type="image/jpeg">
+                        <img loading="lazy" src="personalizado/build/img/blog2.jpg" alt="Texto Entrada Blog">
+                    </picture>
+                </div>
+
+                <div class="texto-entrada">
+                    <a href="entrada.html">
+                        <h4 style="color:black;"> Guía para la decoración de tu hogar</h4>
+                        <p style="color:black;" class="informacion-meta">Escrito el: <span>09/08/2024</span> por: <span>Admin</span> </p>
+
+                        <p>
+                            Maximiza el espacio en tu hogar con esta guia, aprende a combinar muebles y colores para darle vida a tu espacio
+                        </p>
+                    </a>
+                </div>
+            </article>
+        </section>
+
+        <section class="testimoniales">
+            <h3 style="color:black;">Testimoniales</h3>
+
+            <div class="testimonial">
+                <blockquote>
+                    El personal se comportó de una excelente forma, muy buena atención y la casa que me ofrecieron cumple con todas mis expectativas.
+                </blockquote>
+                <p>- Roberto Solis</p>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer seccion">
+      
+        <p class="copyright">UNAN MANAGUA 2024 &copy;</p>
+    </footer>
+
+    <script src="personalizado/build/js/bundle.min.js"></script>
+
+
+
+<style>
+    /* Aquí puedes añadir estilos específicos para tu landing */
+    .dark-mode {
+        background-color: #FFFFFF; /* Fondo blanco */
+        color: #000000; /* Color del texto negro */
+    }
+
+    .tocado {
+        color: #FFFFFF; /* Texto blanco */
+    }
+
+    .tocado2{
+         color: #000000; /* Color del texto negro */
+    }
+    
+    
+
+    .dark-mode .boton-amarillo,
+    .dark-mode .boton-verde {
+        background-color: #ffcc00; /* Color de fondo de los botones */
+        color: #000; /* Color del texto de los botones */
+    }
+
+    .dark-mode .boton-amarillo:hover,
+    .dark-mode .boton-verde:hover {
+        background-color: #ffdb4d; /* Color de fondo en hover para los botones */
+    }
+</style>
+
+
+
+</body>
+
+
+
+
+</html>
+
+
+
